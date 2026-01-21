@@ -1,0 +1,54 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Sidebar from '../../components/Sidebar.astro';
+
+export async function getStaticPaths() {
+  return [
+    { params: { category: 'brasileirao' }, props: { name: 'Brasileirão' } },
+    { params: { category: 'so-lendas' }, props: { name: 'Só Lendas' } },
+    { params: { category: 'olho-no-lance' }, props: { name: 'Olho no Lance' } },
+  ];
+}
+
+const { category } = Astro.params;
+const { name } = Astro.props;
+
+const posts = [1, 2, 3, 4].map((i) => ({
+    title: `Destaque do ${name} #${i}`,
+    excerpt: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    image: `https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600&auto=format&fit=crop&random=${i}`,
+    slug: "defesa-falhando"
+}));
+---
+
+<Layout title={`Notícias sobre ${name}`}>
+    <div class="relative py-16 mb-12 border-b border-white/5 bg-bj-surface/50 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 relative z-10 text-center">
+            <span class="text-bj-neon text-xs font-bold uppercase tracking-[0.2em] mb-3 block">Categoria</span>
+            <h1 class="text-5xl md:text-7xl font-heading font-bold text-bj-white uppercase tracking-tighter">
+                {name}
+            </h1>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-7xl mx-auto px-4">
+        <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {posts.map((post) => (
+                <article class="group flex flex-col h-full bg-bj-surface border border-white/5 rounded-sm overflow-hidden">
+                    <a href={`/posts/${post.slug}`} class="aspect-video overflow-hidden relative">
+                            <img src={post.image} alt={post.title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    </a>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h2 class="text-xl font-heading font-bold text-bj-white leading-tight mb-3 group-hover:text-bj-neon transition-colors">
+                            <a href={`/posts/${post.slug}`}>{post.title}</a>
+                        </h2>
+                        <p class="text-bj-dim text-sm line-clamp-3 mb-4 flex-grow">{post.excerpt}</p>
+                    </div>
+                </article>
+            ))}
+        </div>
+        <aside class="lg:col-span-4">
+            <Sidebar />
+        </aside>
+    </div>
+</Layout>

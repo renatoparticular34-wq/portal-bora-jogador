@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  /* Cores Personalizadas Bora Jogador */
+  --color-bj-black: #050505;       /* Fundo Principal (Preto quase total) */
+  --color-bj-dark: #0a0a0a;        /* Fundo Secundário */
+  
+  /* AQUI ESTÁ O CONTRASTE: Um cinza chumbo para diferenciar menu/rodapé */
+  --color-bj-surface: #161616;     
+  --color-bj-surfaceHover: #1f1f1f; 
+  
+  --color-bj-white: #ffffff;
+  --color-bj-gray: #e5e5e5;
+  --color-bj-dim: #a3a3a3;
+  --color-bj-neon: #39ff14;        /* Verde Neon */
+
+  /* Fontes */
+  --font-sans: "Inter", sans-serif;
+  --font-heading: "Oswald", sans-serif;
+}

@@ -1,0 +1,147 @@
+---
+const menuItems = [
+  { 
+    name: "Brasileirão", 
+    href: "/brasileirao",
+    sub: [
+      { name: "Pré Jogo", href: "/brasileirao/pre-jogo" },
+      { name: "Bola Cheia / Bola Murcha", href: "/brasileirao/analises" },
+      { name: "Últimas do Brasileirão", href: "/brasileirao/ultimas" }
+    ]
+  },
+  { 
+    name: "Só Lendas", 
+    href: "/so-lendas",
+    sub: [
+      { name: "Craques do Passado", href: "/so-lendas/craques" },
+      { name: "Curiosidades", href: "/so-lendas/curiosidades" }
+    ]
+  },
+  { 
+    name: "Olho no Lance", 
+    href: "/olho-no-lance",
+    sub: [
+      { name: "Formação Tática", href: "/olho-no-lance/tatica" },
+      { name: "Entendendo o Futebol", href: "/olho-no-lance/entendendo" }
+    ]
+  },
+];
+---
+
+<header class="sticky top-0 z-50 w-full bg-bj-surface border-b border-white/5 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16 md:h-20">
+      
+      <div class="flex-shrink-0">
+        <a href="/" class="flex items-center gap-2 group">
+           <img 
+            src="/images/logo-borajogador.png" 
+            alt="Bora Jogador" 
+            class="h-8 md:h-10 w-auto object-contain transition-opacity hover:opacity-90"
+           />
+        </a>
+      </div>
+
+      <nav class="hidden md:block">
+        <ul class="flex space-x-8 items-center">
+          {menuItems.map((item) => (
+            <li class="relative group">
+              <a 
+                href={item.href} 
+                class="flex items-center gap-1 font-heading text-lg uppercase tracking-wide text-bj-white hover:text-bj-neon transition-colors py-6"
+              >
+                {item.name}
+                <svg class="w-4 h-4 text-bj-dim group-hover:text-bj-neon transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </a>
+
+              <div class="absolute left-0 top-full w-64 bg-bj-surface border border-white/10 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
+                <ul class="py-2">
+                  {item.sub.map((subItem) => (
+                    <li>
+                      <a href={subItem.href} class="block px-4 py-3 text-sm text-bj-gray hover:bg-bj-surfaceHover hover:text-bj-neon transition-colors border-l-2 border-transparent hover:border-bj-neon">
+                        {subItem.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <button id="mobile-menu-btn" class="md:hidden p-2 -mr-2 text-bj-white hover:text-bj-neon focus:outline-none transition-colors" aria-label="Abrir Menu">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-bj-surface border-t border-white/10 absolute w-full left-0 shadow-2xl">
+    <ul class="px-4 pt-2 pb-6 space-y-2 max-h-[80vh] overflow-y-auto">
+      {menuItems.map((item, index) => (
+        <li class="border-b border-white/5 last:border-0">
+          <button class="w-full flex items-center justify-between py-4 text-left text-bj-white font-heading text-sm uppercase font-bold hover:text-bj-neon transition-colors toggle-submenu focus:outline-none" data-index={index}>
+            {item.name}
+            <svg class="w-4 h-4 transform transition-transform duration-200 text-bj-dim" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          <ul id={`submenu-${index}`} class="hidden pl-4 pb-3 space-y-1 bg-black/20 rounded-sm">
+            {item.sub.map((subItem) => (
+              <li>
+                <a href={subItem.href} class="block py-3 text-sm text-bj-gray hover:text-bj-neon transition-colors border-l border-white/10 pl-3">
+                  {subItem.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+  </div>
+</header>
+
+<script>
+  // Esta função garante que o script rode a cada navegação (Astro ViewTransitions)
+  document.addEventListener('astro:page-load', () => {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    const toggles = document.querySelectorAll('.toggle-submenu');
+
+    // Resetar estado ao carregar
+    menu?.classList.add('hidden');
+
+    // Toggle Menu Principal
+    btn?.addEventListener('click', (e) => {
+      e.stopPropagation(); // Evita cliques fantasmas
+      menu?.classList.toggle('hidden');
+    });
+
+    // Toggle Submenus (Accordion)
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const button = e.currentTarget as HTMLElement;
+        const index = button.dataset.index;
+        const submenu = document.getElementById(`submenu-${index}`);
+        const icon = button.querySelector('svg');
+        
+        // Abre/Fecha submenu
+        submenu?.classList.toggle('hidden');
+        
+        // Gira a setinha
+        if (submenu?.classList.contains('hidden')) {
+          icon?.classList.remove('rotate-180');
+        } else {
+          icon?.classList.add('rotate-180');
+        }
+      });
+    });
+
+    // Fechar ao clicar fora (opcional, para UX melhor)
+    document.addEventListener('click', (e) => {
+        if (!menu?.contains(e.target as Node) && !btn?.contains(e.target as Node)) {
+            menu?.classList.add('hidden');
+        }
+    });
+  });
+</script>

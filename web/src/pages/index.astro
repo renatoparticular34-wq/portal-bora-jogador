@@ -1,0 +1,99 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Sidebar from '../components/Sidebar.astro';
+
+// Posts com links REAIS
+const posts = [
+  { 
+    title: "Bola Murcha: Por que a defesa do líder está falhando?", 
+    category: "Brasileirão", 
+    image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1000&auto=format&fit=crop",
+    slug: "defesa-falhando" 
+  },
+  { 
+    title: "Entendendo o Futebol: O que é o 'Falso 9'?", 
+    category: "Olho no Lance", 
+    image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=1000&auto=format&fit=crop",
+    slug: "falso-9"
+  },
+  { 
+    title: "Curiosidades: Os estádios mais bizarros do mundo", 
+    category: "Curiosidades", 
+    image: "https://images.unsplash.com/photo-1522778119026-d647f0565c6a?q=80&w=1000&auto=format&fit=crop",
+    slug: "estadios-bizarros"
+  },
+  { 
+    title: "Revelação da base assina contrato milionário", 
+    category: "Mercado", 
+    image: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?q=80&w=1000&auto=format&fit=crop",
+    slug: "revelacao-base"
+  },
+];
+
+const heroSlug = "meio-campo-moderno";
+---
+
+<Layout title="Home">
+  
+  <div class="w-full flex justify-center py-6 bg-bj-black">
+    <div class="w-[728px] h-[90px] bg-bj-surface border border-white/5 flex items-center justify-center">
+      <span class="text-xs text-bj-dim uppercase tracking-widest">Publicidade (728x90)</span>
+    </div>
+  </div>
+
+  <section class="relative w-full h-[500px] mb-12 border-b-4 border-bj-neon">
+    <div class="absolute inset-0">
+      <img src="https://images.unsplash.com/photo-1556056504-5c7696c4c28d?q=80&w=2000&auto=format&fit=crop" class="w-full h-full object-cover" alt="Destaque">
+      <div class="absolute inset-0 bg-gradient-to-t from-bj-black via-bj-black/70 to-transparent"></div>
+    </div>
+
+    <div class="absolute bottom-0 left-0 w-full p-6 md:p-12 z-10">
+      <span class="bg-bj-neon text-bj-black text-xs font-bold px-3 py-1 uppercase mb-4 inline-block tracking-wider">Bola Cheia da Rodada</span>
+      <h1 class="text-3xl md:text-6xl font-heading font-bold text-bj-white uppercase leading-none mb-4 max-w-4xl drop-shadow-lg">
+        <a href={`/posts/${heroSlug}`} class="hover:text-bj-neon transition-colors">
+            Como o meio-campo moderno revolucionou o Brasileirão
+        </a>
+      </h1>
+      <a href={`/posts/${heroSlug}`} class="inline-block bg-bj-white text-bj-black font-heading font-bold uppercase px-8 py-3 hover:bg-bj-neon transition-colors">
+        Ler Matéria
+      </a>
+    </div>
+  </section>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+    <div class="lg:col-span-8 space-y-12">
+      <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-8">
+        <h2 class="text-3xl font-heading font-bold text-bj-white italic uppercase">
+          Últimas <span class="text-bj-neon">Notícias</span>
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {posts.map((post) => (
+          <article class="flex flex-col h-full hover:bg-white/5 transition-colors p-3 rounded-sm border border-transparent hover:border-white/10">
+            <a href={`/posts/${post.slug}`} class="aspect-video overflow-hidden mb-4 border border-white/5 relative block group">
+              <span class="absolute top-2 left-2 bg-bj-black/90 text-bj-neon text-[10px] font-bold px-2 py-1 uppercase z-10 border border-bj-neon/30">
+                {post.category}
+              </span>
+              <img src={post.image} alt={post.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            </a>
+            
+            <h3 class="text-xl font-heading font-bold text-bj-white leading-tight mb-2">
+              <a href={`/posts/${post.slug}`} class="hover:text-bj-neon transition-colors">
+                {post.title}
+              </a>
+            </h3>
+            
+            <p class="text-bj-dim text-sm line-clamp-2 mb-4">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.
+            </p>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <aside class="lg:col-span-4">
+      <Sidebar />
+    </aside>
+  </div>
+</Layout>
