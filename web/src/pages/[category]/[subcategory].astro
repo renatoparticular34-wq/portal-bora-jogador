@@ -1,8 +1,10 @@
 ---
-// CORREÇÃO: Usamos ../../ aqui também
 import Layout from '../../layouts/Layout.astro';
 import Sidebar from '../../components/Sidebar.astro';
+import { sanityClient } from '../../lib/sanity';
+import { PortableText } from '@portabletext/react';
 
+// Mantemos seus caminhos de menu, mas agora o conteúdo será REAL
 export async function getStaticPaths() {
   return [
     { params: { category: 'brasileirao', subcategory: 'pre-jogo' }, props: { name: 'Pré Jogo' } },
@@ -18,19 +20,36 @@ export async function getStaticPaths() {
 const { category, subcategory } = Astro.params;
 const { name } = Astro.props;
 
-const posts = [1, 2, 3, 4].map((i) => ({
-    title: `Notícia sobre ${name} #${i}`,
-    excerpt: "Análise completa sobre o tema com detalhes táticos.",
-    image: `https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop&random=${i}`,
-    slug: "falso-9" // Linkando para um post que existe
-}));
+// BUSCA OS POSTS REAIS NO SANITY
+// O filtro "&& defined(slug.current)" impede erros de posts fantasmas
+const posts = await sanityClient.fetch(`
+  *[_type == "post" && defined(slug.current) && $category in categories[]->slug.current] | order(publishedAt desc) {
+    title,
+    "slug": slug.current,
+    "image": mainImage.asset->url,
+    "excerpt": pt::text(body)
+  }
+`, { category });
 ---
 
 <Layout title={`${name} | ${category}`}>
+    
+    <div class="w-full max-w-[1200px] mx-auto mt-4 mb-8 flex justify-center px-4">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-5066122308491062"
+             data-ad-slot="4803145127"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script is:inline>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+
     <div class="py-12 mb-8 border-b border-white/5 bg-bj-surface/30">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex items-center gap-2 text-xs text-bj-dim uppercase tracking-wider mb-2">
-                <a href={`/${category}`} class="hover:text-bj-neon">{category}</a>
+                <a href="/" class="hover:text-bj-neon">Home</a>
                 <span>/</span>
                 <span class="text-bj-neon">{name}</span>
             </div>
@@ -42,23 +61,21 @@ const posts = [1, 2, 3, 4].map((i) => ({
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-7xl mx-auto px-4">
         <div class="lg:col-span-8 space-y-8">
-            {posts.map((post) => (
-                <article class="flex flex-col md:flex-row gap-6 bg-bj-surface border border-white/5 p-4 rounded-sm hover:border-bj-neon/30 transition-colors group">
-                    <a href={`/posts/${post.slug}`} class="w-full md:w-1/3 aspect-video overflow-hidden">
-                            <img src={post.image} alt={post.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    </a>
-                    <div class="flex-1 flex flex-col justify-center">
-                        <span class="text-bj-neon text-xs font-bold uppercase mb-2">{name}</span>
-                        <h2 class="text-xl font-heading font-bold text-bj-white leading-tight mb-3 group-hover:text-bj-neon transition-colors">
-                            <a href={`/posts/${post.slug}`}>{post.title}</a>
-                        </h2>
-                        <p class="text-bj-dim text-sm mb-4">{post.excerpt}</p>
-                    </div>
-                </article>
-            ))}
-        </div>
-        <aside class="lg:col-span-4">
-            <Sidebar />
-        </aside>
-    </div>
-</Layout>
+            
+            {posts.length > 0 ? (
+                posts.map((post) => (
+                    <article class="flex flex-col md:flex-row gap-6 bg-bj-surface border border-white/5 p-4 rounded-sm hover:border-bj-neon/30 transition-colors group">
+                        <a href={`/posts/${post.slug}`} class="w-full md:w-1/3 aspect-video overflow-hidden relative block">
+                            {post.image ? (
+                                <img src={post.image} alt={post.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                            ) : (
+                                <div class="w-full h-full bg-gray-800 flex items-center justify-center text-xs text-gray-500">Sem imagem</div>
+                            )}
+                        </a>
+                        <div class="flex-1 flex flex-col justify-center">
+                            <span class="text-bj-neon text-xs font-bold uppercase mb-2">{name}</span>
+                            <h2 class="text-xl font-heading font-bold text-bj-white leading-tight mb-3 group-hover:text-bj-neon transition-colors">
+                                <a href={`/posts/${post.slug}`}>{post.title}</a>
+                            </h2>
+                            <p class="text-bj-dim text-sm mb-4 line-clamp-3">
+                                {post.excerpt ? post.excerpt.substring(0, 150) + "..." :
