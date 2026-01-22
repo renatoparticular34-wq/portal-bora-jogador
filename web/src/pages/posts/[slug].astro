@@ -1,142 +1,77 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Sidebar from '../../components/Sidebar.astro';
+import { sanityClient } from '../../lib/sanity';
+import { PortableText } from '@portabletext/react';
 
-// 1. CADASTRAR POSTS (Mantive os mesmos para não quebrar)
 export async function getStaticPaths() {
-  const posts = [
-    { 
-        slug: 'meio-campo-moderno', 
-        title: 'Como o meio-campo moderno revolucionou o Brasileirão',
-        category: 'Brasileirão',
-        image: 'https://images.unsplash.com/photo-1556056504-5c7696c4c28d?q=80&w=2000&auto=format&fit=crop'
-    },
-    { 
-        slug: 'defesa-falhando', 
-        title: 'Bola Murcha: Por que a defesa do líder está falhando?',
-        category: 'Brasileirão',
-        image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1000&auto=format&fit=crop'
-    },
-    { 
-        slug: 'falso-9', 
-        title: 'Entendendo o Futebol: O que é o "Falso 9"?',
-        category: 'Olho no Lance',
-        image: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=1000&auto=format&fit=crop'
-    },
-    { 
-        slug: 'estadios-bizarros', 
-        title: 'Curiosidades: Os estádios mais bizarros do mundo',
-        category: 'Curiosidades',
-        image: 'https://images.unsplash.com/photo-1522778119026-d647f0565c6a?q=80&w=1000&auto=format&fit=crop'
-    },
-    { 
-        slug: 'revelacao-base', 
-        title: 'Revelação da base assina contrato milionário',
-        category: 'Mercado',
-        image: 'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?q=80&w=1000&auto=format&fit=crop'
-    },
-  ];
-
-  return posts.map(post => ({
+  const posts = await sanityClient.fetch(`*[_type == "post"] { "slug": slug.current }`);
+  return posts.map((post) => ({
     params: { slug: post.slug },
-    props: { post },
   }));
 }
 
-const { post } = Astro.props;
+const { slug } = Astro.params;
+const post = await sanityClient.fetch(`*[_type == "post" && slug.current == $slug][0] {
+  title,
+  "image": mainImage.asset->url,
+  "category": categories[0]->title,
+  publishedAt,
+  body
+}`, { slug });
 
-// Dados fixos complementares
-const fullPost = {
-  ...post,
-  author: "Renato Dias",
-  date: "21 Jan, 2026",
-  tags: ["Tática", post.category, "Análise", "Futebol Moderno"]
-};
-
-const readTime = 5;
+if (!post) return Astro.redirect('/404');
 ---
 
-<Layout title={fullPost.title} image={fullPost.image}>
-  
-  <div id="progress-container" class="fixed top-0 left-0 h-1 bg-bj-neon z-[60] w-0 transition-all duration-100"></div>
-
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-4">
-    
+<Layout title={post.title} image={post.image}>
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-4 px-4 md:px-0">
     <article class="lg:col-span-8">
-      
-      <nav class="flex items-center text-xs text-bj-dim mb-6 uppercase tracking-wider font-bold">
-        <a href="/" class="hover:text-bj-neon transition-colors">Home</a>
-        <span class="mx-2 text-white/20">/</span>
-        <span class="text-bj-neon">{fullPost.category}</span>
-      </nav>
-
       <header class="mb-8">
         <h1 class="text-3xl md:text-5xl font-heading font-bold text-bj-white leading-tight mb-6 uppercase">
-          {fullPost.title}
+          {post.title}
         </h1>
-        
-        <div class="flex items-center justify-between border-y border-white/5 py-4">
-          <div class="flex items-center gap-4">
-             <div class="w-10 h-10 rounded-full bg-bj-surface border border-bj-neon flex items-center justify-center text-bj-white font-heading font-bold text-lg">
-                R
-             </div>
-             <div class="flex flex-col">
-                <span class="text-bj-white text-sm font-bold uppercase">{fullPost.author}</span>
-                <span class="text-bj-dim text-xs">{fullPost.date}</span>
-             </div>
-          </div>
-          <div class="flex items-center gap-2 text-bj-neon text-xs font-bold uppercase tracking-wider bg-bj-neon/10 px-3 py-1 rounded-full">
-            {readTime} min leitura
-          </div>
+        <div class="flex items-center gap-4 border-y border-white/5 py-4">
+            <span class="text-bj-neon text-xs font-bold uppercase">{post.category}</span>
+            <span class="text-bj-dim text-xs">|</span>
+            <span class="text-bj-dim text-xs">{new Date(post.publishedAt).toLocaleDateString('pt-BR')}</span>
         </div>
       </header>
 
-      <div class="aspect-video w-full mb-10 rounded-sm overflow-hidden border border-white/5 relative group">
-        <img src={fullPost.image} alt={fullPost.title} class="w-full h-full object-cover" />
+      <div class="aspect-video w-full mb-10 rounded-sm overflow-hidden border border-white/5">
+        <img src={post.image} alt={post.title} class="w-full h-full object-cover" />
       </div>
 
-      <div class="w-full max-w-[728px] mx-auto">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-5066122308491062"
-       data-ad-slot= 4803145127
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-  <script>
-       (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-</div>
+      <div class="mb-10 w-full flex justify-center">
+         <ins class="adsbygoogle"
+              style="display:block"
+              data-ad-client="ca-pub-5066122308491062"
+              data-ad-slot="4803145127"
+              data-ad-format="auto"
+              data-full-width-responsive="true"></ins>
+         <script is:inline>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
 
       <div class="prose prose-invert prose-lg max-w-none text-bj-gray leading-relaxed mb-8">
-        
-        <p class="text-xl text-bj-white font-medium mb-6 border-l-4 border-bj-neon pl-4">
-           Resumo: A evolução tática do futebol passa pela inteligência do espaço. Entenda como as movimentações mudaram o jogo.
-        </p>
-        
-        <p>
-            O futebol brasileiro sempre foi conhecido pela técnica, mas nos últimos anos, uma revolução silenciosa tomou conta dos gramados. Não se trata mais apenas de camisa 10 clássico ou do volante brucutu. O jogo moderno exige dinamismo, onde todos atacam e todos defendem.
-        </p>
-        
-        <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        </p>
+        {/* Aqui o Astro renderiza o texto que vem do Sanity */}
+        <div class="sanity-content">
+            {post.body && <PortableText value={post.body} />}
+        </div>
+      </div>
 
-      <div class="w-full max-w-[728px]">
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-5066122308491062"
-       data-ad-slot= 4803145127
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-  <script>
-       (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-</div>
+      <div class="my-10 w-full flex justify-center border-t border-white/5 pt-8">
+         <ins class="adsbygoogle"
+              style="display:block; text-align:center;"
+              data-ad-layout="in-article"
+              data-ad-format="fluid"
+              data-ad-client="ca-pub-5066122308491062"
+              data-ad-slot="4803145127"></ins>
+         <script is:inline>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
 
-        <h3>A Nova Função Tática</h3>
-        <p>
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>
-        <p>
-            Curabitur vitae nunc sed velit dignissim sodales ut eu sem. Sed imperdiet, libero eget pulvinar interdum, nisi nulla cursus ligula, vel lacinia dolor enim a urna.
-        </p>
+    </article>
+
+    <aside class="lg:col-span-4">
+      <Sidebar />
+    </aside>
+  </div>
+</Layout>
