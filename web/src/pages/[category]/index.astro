@@ -1,9 +1,10 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import Sidebar from '../../components/Sidebar.astro';
-import { sanityClient } from 'sanity:client';
+// CORREÇÃO: Usando o nome exato que está no seu arquivo lib/sanity.ts
+import { sanityClient } from '../../lib/sanity';
 
-// 1. Busca as categorias existentes no Sanity para criar as páginas (ex: /brasileirao, /mercado)
+// 1. Busca as categorias existentes no Sanity
 export async function getStaticPaths() {
   const categories = await sanityClient.fetch(`*[_type == "category"]{
     "slug": slug.current,
@@ -19,7 +20,7 @@ export async function getStaticPaths() {
 const { category } = Astro.params;
 const { name } = Astro.props;
 
-// 2. Busca as notícias REAIS que pertencem a essa categoria
+// 2. Busca as notícias REAIS dessa categoria
 const posts = await sanityClient.fetch(`
   *[_type == "post" && $category in categories[]->slug.current] | order(publishedAt desc) {
     title,
@@ -46,7 +47,6 @@ const posts = await sanityClient.fetch(`
                 posts.map((post) => (
                     <article class="group flex flex-col h-full bg-bj-surface border border-white/5 rounded-sm overflow-hidden">
                         <a href={`/posts/${post.slug}`} class="aspect-video overflow-hidden relative">
-                             {/* Verifica se tem imagem, se não tiver usa uma padrão cinza */}
                              {post.image ? (
                                 <img src={post.image} alt={post.title} class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                              ) : (
@@ -57,7 +57,6 @@ const posts = await sanityClient.fetch(`
                             <h2 class="text-xl font-heading font-bold text-bj-white leading-tight mb-3 group-hover:text-bj-neon transition-colors">
                                 <a href={`/posts/${post.slug}`}>{post.title}</a>
                             </h2>
-                            {/* Mostra um resumo se existir */}
                             <p class="text-bj-dim text-sm line-clamp-3 mb-4 flex-grow">
                                 {post.excerpt ? post.excerpt : "Clique para ler a notícia completa..."}
                             </p>

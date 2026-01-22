@@ -6,4 +6,3 @@ export const sanityClient = createClient({
   apiVersion: "2024-01-01",
   useCdn: false,
 });
-// Atualizando conexao sanity
