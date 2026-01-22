@@ -2,12 +2,14 @@
 import Layout from '../../layouts/Layout.astro';
 import Sidebar from '../../components/Sidebar.astro';
 // CAMINHO CORRIGIDO ABAIXO
-import { sanityClient } from '../../lib/sanity';
+import { sanityClient } from '../../../lib/sanity';
 import { PortableText } from '@portabletext/react';
 
 export async function getStaticPaths() {
   const posts = await sanityClient.fetch(`*[_type == "post"] { "slug": slug.current }`);
-  return posts.map((post) => ({ params: { slug: post.slug } }));
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+  }));
 }
 
 const { slug } = Astro.params;
@@ -34,19 +36,29 @@ if (!post) return Astro.redirect('/404');
         </div>
       </header>
 
-      <div class="aspect-video w-full mb-10 rounded-sm overflow-hidden border border-white/5">
+      <div class="aspect-video w-full mb-10 rounded-sm overflow-hidden border border-white/5 shadow-2xl">
         <img src={post.image} alt={post.title} class="w-full h-full object-cover" />
       </div>
 
-      <div class="prose prose-invert prose-lg max-w-none text-bj-gray mb-12">
-        {post.body && <PortableText value={post.body} />}
+      <div class="prose prose-invert prose-lg max-w-none text-bj-gray leading-relaxed mb-12">
+        <div class="sanity-content">
+            {post.body && <PortableText value={post.body} />}
+        </div>
       </div>
 
       <div class="my-10 w-full flex justify-center">
-         <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5066122308491062" data-ad-slot="4803145127" data-ad-format="auto" data-full-width-responsive="true"></ins>
+         <ins class="adsbygoogle"
+              style="display:block"
+              data-ad-client="ca-pub-5066122308491062"
+              data-ad-slot="4803145127"
+              data-ad-format="auto"
+              data-full-width-responsive="true"></ins>
          <script is:inline>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
     </article>
-    <aside class="lg:col-span-4"><Sidebar /></aside>
+
+    <aside class="lg:col-span-4">
+      <Sidebar />
+    </aside>
   </div>
 </Layout>

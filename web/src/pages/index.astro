@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Sidebar from '../components/Sidebar.astro';
 import { sanityClient } from '../lib/sanity';
 
-// BUSCA OS POSTS NO SANITY
+// Busca os posts dinâmicos do Sanity
 const posts = await sanityClient.fetch(`*[_type == "post"] | order(publishedAt desc) {
   title,
   "slug": slug.current,
@@ -55,7 +55,7 @@ const otherPosts = posts.slice(1);
     <div class="lg:col-span-8 space-y-12">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         {otherPosts.map((post) => (
-          <article class="flex flex-col h-full hover:bg-white/5 transition-colors p-3 rounded-sm">
+          <article class="flex flex-col h-full hover:bg-white/5 transition-colors p-3 rounded-sm border border-transparent hover:border-white/10">
             <a href={`/posts/${post.slug}`} class="aspect-video overflow-hidden mb-4 border border-white/5 relative block group">
               <span class="absolute top-2 left-2 bg-bj-black/90 text-bj-neon text-[10px] font-bold px-2 py-1 uppercase z-10">
                 {post.category || 'Futebol'}
