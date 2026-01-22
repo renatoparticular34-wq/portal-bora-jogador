@@ -5,13 +5,8 @@ import { sanityClient } from '../../lib/sanity';
 import { PortableText } from '@portabletext/react';
 
 export async function getStaticPaths() {
-  // AQUI ESTÁ A PROTEÇÃO: "&& defined(slug.current)"
-  // Isso impede que posts vazios quebrem o deploy na Vercel
   const posts = await sanityClient.fetch(`*[_type == "post" && defined(slug.current)] { "slug": slug.current }`);
-  
-  return posts.map((post) => ({
-    params: { slug: post.slug },
-  }));
+  return posts.map((post) => ({ params: { slug: post.slug } }));
 }
 
 const { slug } = Astro.params;
@@ -23,7 +18,6 @@ const post = await sanityClient.fetch(`*[_type == "post" && slug.current == $slu
   body
 }`, { slug });
 
-// Se não achar o post, manda para página 404 em vez de quebrar
 if (!post) return Astro.redirect('/404');
 ---
 
@@ -33,16 +27,18 @@ if (!post) return Astro.redirect('/404');
       <header class="mb-8">
         <h1 class="text-3xl md:text-5xl font-heading font-bold text-bj-white leading-tight mb-6 uppercase">{post.title}</h1>
         <div class="border-y border-white/5 py-4 text-bj-dim text-xs uppercase tracking-widest">
-            {post.category || 'Geral'} | {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('pt-BR') : 'Hoje'}
+            {post.category || 'Notícia'} | {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('pt-BR') : 'Hoje'}
         </div>
       </header>
 
-      <div class="aspect-video w-full mb-10 rounded-sm overflow-hidden border border-white/5">
-        {post.image && <img src={post.image} alt={post.title} class="w-full h-full object-cover" />}
-      </div>
+      {post.image && (
+        <div class="aspect-video w-full mb-10 rounded-sm overflow-hidden border border-white/5 shadow-2xl">
+            <img src={post.image} alt={post.title} class="w-full h-full object-cover" />
+        </div>
+      )}
 
       <div class="prose prose-invert prose-lg max-w-none text-bj-gray mb-12">
-        {post.body && <PortableText value={post.body} />}
+        {post.body ? <PortableText value={post.body} /> : <p>Conteúdo indisponível.</p>}
       </div>
 
       <div class="my-10 w-full flex justify-center">
