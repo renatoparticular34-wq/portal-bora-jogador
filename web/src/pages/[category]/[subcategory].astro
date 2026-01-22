@@ -2,9 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Sidebar from '../../components/Sidebar.astro';
 import { sanityClient } from '../../lib/sanity';
-import { PortableText } from '@portabletext/react';
 
-// Mantemos seus caminhos de menu, mas agora o conteúdo será REAL
 export async function getStaticPaths() {
   return [
     { params: { category: 'brasileirao', subcategory: 'pre-jogo' }, props: { name: 'Pré Jogo' } },
@@ -21,7 +19,6 @@ const { category, subcategory } = Astro.params;
 const { name } = Astro.props;
 
 // BUSCA OS POSTS REAIS NO SANITY
-// O filtro "&& defined(slug.current)" impede erros de posts fantasmas
 const posts = await sanityClient.fetch(`
   *[_type == "post" && defined(slug.current) && $category in categories[]->slug.current] | order(publishedAt desc) {
     title,
@@ -33,7 +30,6 @@ const posts = await sanityClient.fetch(`
 ---
 
 <Layout title={`${name} | ${category}`}>
-    
     <div class="w-full max-w-[1200px] mx-auto mt-4 mb-8 flex justify-center px-4">
         <ins class="adsbygoogle"
              style="display:block"
@@ -61,7 +57,6 @@ const posts = await sanityClient.fetch(`
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-7xl mx-auto px-4">
         <div class="lg:col-span-8 space-y-8">
-            
             {posts.length > 0 ? (
                 posts.map((post) => (
                     <article class="flex flex-col md:flex-row gap-6 bg-bj-surface border border-white/5 p-4 rounded-sm hover:border-bj-neon/30 transition-colors group">
@@ -78,4 +73,19 @@ const posts = await sanityClient.fetch(`
                                 <a href={`/posts/${post.slug}`}>{post.title}</a>
                             </h2>
                             <p class="text-bj-dim text-sm mb-4 line-clamp-3">
-                                {post.excerpt ? post.excerpt.substring(0, 150) + "..." :
+                                {post.excerpt ? post.excerpt.substring(0, 150) + "..." : "Clique para ler a matéria completa."}
+                            </p>
+                        </div>
+                    </article>
+                ))
+            ) : (
+                <div class="p-8 text-center border border-dashed border-white/10 rounded">
+                    <p class="text-bj-dim">Nenhuma notícia encontrada nesta categoria no momento.</p>
+                </div>
+            )}
+        </div>
+        <aside class="lg:col-span-4">
+            <Sidebar />
+        </aside>
+    </div>
+</Layout>
